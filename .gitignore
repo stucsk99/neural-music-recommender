@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Data (large files)
+data/
+models/
+*.npy
+*.npz
+*.mp3
+*.wav
+
+# VS Code
+.vscode/
+
+# Secrets
+.env
