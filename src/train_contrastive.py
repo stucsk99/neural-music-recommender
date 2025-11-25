@@ -2,18 +2,30 @@ import tensorflow as tf
 import numpy as np
 from model import build_embedding_model
 from data_loader import SpectrogramDataset
+import os
 
 # --- Hyperparameters ---
 batch_size = 8
 embedding_dim = 128
 temperature = 0.1
-epochs = 5
+epochs = 10
+model_name = 'ten_ep'
 
+print("[INFO] Loading dataset...")
 # --- Dataset ---
 ds = SpectrogramDataset("E:/song_project/spectrograms", batch_size=batch_size)
 
+if len(ds) == 0:
+    print("[ERROR] Dataset is empty! No valid files found. Exiting.")
+    exit(1)
+
+print(f"[INFO] Dataset ready: {len(ds)} batches")
+
+print("[INFO] Building model...")
 # --- Model ---
 embedding_model = build_embedding_model(input_shape=(128, 129, 1), embedding_dim=embedding_dim)
+print("[INFO] Model built successfully")
+
 optimizer = tf.keras.optimizers.Adam(1e-4)
 
 # --- Simple augmentation function ---
@@ -38,8 +50,10 @@ def contrastive_loss(z_i, z_j, temperature=0.1):
     return tf.reduce_mean(loss)
 
 # --- Training loop ---
+print(f"[INFO] Starting training for {epochs} epoch(s)...")
 for epoch in range(epochs):
     epoch_loss = []
+    print(f"[INFO] Epoch {epoch+1}/{epochs}")
     for step in range(len(ds)):
         X, _ = ds[step]  # (batch_size, 128, 129, 1)
 
@@ -56,10 +70,15 @@ for epoch in range(epochs):
         optimizer.apply_gradients(zip(grads, embedding_model.trainable_variables))
         epoch_loss.append(loss.numpy())
 
+
         if step % 10 == 0:
             print(f"Epoch {epoch+1} Step {step}/{len(ds)} Loss={loss.numpy():.4f}")
 
     print(f"Epoch {epoch+1} mean loss: {np.mean(epoch_loss):.4f}")
 
-embedding_model.save("E:/song_project/models/embedding_model_contrastive.keras")
-print("✅ Saved trained embedding model.")
+os.makedirs("E:/song_project/models", exist_ok=True)
+embedding_model.save(f"E:/song_project/models/embedding_model_contrastive{model_name}.keras")
+print(f"[INFO] Model saved to E:/song_project/models/embedding_model_contrastive{model_name}.keras")
+print("✅ Training completed successfully.")
+
+

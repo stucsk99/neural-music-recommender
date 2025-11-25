@@ -9,7 +9,31 @@ class SpectrogramDataset(tf.keras.utils.Sequence):
 
     def __init__(self, data_dir, batch_size=8, chunk_length=129, n_mels=128, shuffle=True):
         self.data_dir = data_dir
-        self.files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".npz")]
+        # Get all .npz files and validate them upfront
+        all_files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".npz")]
+        self.files = []
+        corrupted_files = []
+        
+        print(f"[INFO] Validating {len(all_files)} spectrogram files...")
+        for file_path in all_files:
+            try:
+                data = np.load(file_path)
+                if "mel" in data and data["mel"].size > 0:
+                    self.files.append(file_path)
+                else:
+                    corrupted_files.append(file_path)
+            except Exception as e:
+                corrupted_files.append(file_path)
+        
+        if corrupted_files:
+            print(f"[WARNING] Found {len(corrupted_files)} corrupted files. Skipping them:")
+            for f in corrupted_files[:5]:  # Show first 5
+                print(f"  - {f}")
+            if len(corrupted_files) > 5:
+                print(f"  ... and {len(corrupted_files) - 5} more")
+        
+        print(f"[INFO] Loaded {len(self.files)} valid spectrogram files.")
+        
         self.batch_size = batch_size
         self.chunk_length = chunk_length
         self.n_mels = n_mels
