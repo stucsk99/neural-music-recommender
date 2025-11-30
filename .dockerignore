@@ -1,13 +1,21 @@
 venv
-__pycache__
+# Ignore virtual environment
+venv/
+ENV/
+env/
 *.pyc
-*.pyo
-*.pyd
-*.log
-.env
+__pycache__/
+
+# Ignore audio datasets (HUGE)
+data/fma_small/
+data/fma_medium/
+data/fma_large/
+data/raw/
+data/spectrograms/
+spectrograms/
+
+# Ignore git junk
 .git
 .gitignore
-.idea
-.vscode
 
 
