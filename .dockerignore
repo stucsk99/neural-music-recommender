@@ -1,21 +1,30 @@
-venv
-# Ignore virtual environment
+# --- Python noise ---
 venv/
-ENV/
 env/
-*.pyc
+ENV/
 __pycache__/
+*.pyc
+*.pyo
 
-# Ignore audio datasets (HUGE)
-data/fma_small/
-data/fma_medium/
-data/fma_large/
-data/raw/
-data/spectrograms/
-spectrograms/
-
-# Ignore git junk
+# --- VCS / editor junk ---
 .git
 .gitignore
+.vscode/
+.idea/
 
+# --- Ignore ALL data by default ---
+data/**
 
+# --- But KEEP the few small things we actually need ---
+!data/fma_embs.npy
+!data/fma_meta.npy
+!data/fma_metadata/**
+# (if you don't actually use fma_metadata at runtime, you can drop the line above)
+
+# --- Ignore huge spectrogram dumps no matter where they live ---
+spectrograms/
+spectograms/
+
+# --- If you have big model dirs, keep only the one file you need ---
+models/**
+!models/embedding_model_contrastiveone_ep.keras
