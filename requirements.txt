@@ -1,6 +1,11 @@
 streamlit
-numpy
+librosa
+soundfile
+numpy==1.26.2
 pandas
 scikit-learn
 spotipy
 python-dotenv
+protobuf==4.23.4
+tensorboard==2.15.1
+cachetools==5.3.2

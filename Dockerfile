@@ -1,15 +1,18 @@
-FROM tensorflow/tensorflow:2.15.0-devel
+FROM tensorflow/tensorflow:2.15.0
 
 RUN apt-get update && apt-get install -y \
-    libsndfile1 \
-    && rm -rf /var/lib/apt/lists/*
+libsndfile1 \
+ffmpeg \
+&& rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 
 COPY requirements.txt ./requirements.txt
 
 RUN python -m pip install --upgrade pip==23.3.2 \
-    && pip install --no-cache-dir -r requirements.txt
+ && pip install --no-cache-dir --ignore-installed -r requirements.txt
+
 
 COPY . .
 
