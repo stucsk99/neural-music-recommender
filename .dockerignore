@@ -27,4 +27,8 @@ spectograms/
 
 # --- If you have big model dirs, keep only the one file you need ---
 models/**
-!models/embedding_model_contrastiveone_ep.keras
+!models/embedding_model_savedmodel/**
+!models/embedding_model_savedmodel/saved_model.pb
+!models/embedding_model_savedmodel/variables/**
+!models/embedding_model_savedmodel/assets/**
+

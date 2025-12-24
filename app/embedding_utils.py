@@ -3,19 +3,12 @@ import numpy as np
 import tensorflow as tf
 from app.configs import MODEL_PATH
 
-# Import l2_normalize so Keras can deserialize it from the saved model
-# (it's decorated with @register_keras_serializable() in src.model)
-try:
-    from src.model import l2_normalize
-except ImportError:
-    pass  # If src is not available, model loading will still work if l2_normalize is registered
 
 @lru_cache(maxsize=1)
-def get_embedding_model():
-    # Load the model. The @register_keras_serializable() decorator on l2_normalize
-    # in src/model.py makes safe_mode=False unnecessary, but we keep it for safety.
-    model = tf.keras.models.load_model(MODEL_PATH, safe_mode=False)
-    return model
+def get_infer():
+    loaded = tf.saved_model.load(str(MODEL_PATH))
+    return loaded.signatures["serving_default"]
+
 
 def embed_mel_chunks(mel_chunks: np.ndarray) -> np.ndarray:
     """
@@ -25,9 +18,16 @@ def embed_mel_chunks(mel_chunks: np.ndarray) -> np.ndarray:
     if mel_chunks.ndim != 3:
         raise ValueError(f"Expected (n_chunks, n_mels, chunk_length), got {mel_chunks.shape}")
 
-    model = get_embedding_model()
-    X = mel_chunks[..., np.newaxis].astype("float32")  # (n_chunks, n_mels, chunk_length, 1)
-    E = model.predict(X, verbose=0)                    # (n_chunks, embedding_dim)
-    e = E.mean(axis=0)                                 # aggregate over chunks
-    e /= (np.linalg.norm(e) + 1e-8)                    # L2-normalize
+    X = mel_chunks[..., np.newaxis].astype("float32")  # (n_chunks, 128, 129, 1)
+
+    infer = get_infer()
+
+    # Call signature using the required input name: 'input_layer'
+    outputs = infer(input_layer=tf.constant(X))
+
+    # Read the required output key
+    E = outputs["output_0"].numpy()  # (n_chunks, embedding_dim)
+
+    e = E.mean(axis=0)
+    e /= (np.linalg.norm(e) + 1e-8)
     return e

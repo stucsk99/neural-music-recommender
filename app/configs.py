@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parents[1]
 
 # Model path (adjust name if yours is different)
-MODEL_PATH = BASE_DIR / "models" / "embedding_model_contrastiveone_ep.keras"
+MODEL_PATH = BASE_DIR / "models" / "embedding_model_savedmodel"
 
 # Data paths (Spotify index)
 DATA_DIR = BASE_DIR / "data"
